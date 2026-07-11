@@ -81,37 +81,41 @@ def simular_monte_carlo_mbg(v_inicial, aporte, meses, mu, sigma, num_simulacoes=
     return cenarios, np.array(investido)
 
 # --- 3. BARRA LATERAL (PARÂMETROS DE ENTRADA) ---
-## --- 3. BARRA LATERAL (PARÂMETROS DE ENTRADA) ---
 st.sidebar.header("⚙️ Parâmetros do Projeto")
-valor_inicial = st.sidebar.number_input("Capital Inicial (R$)", value=10000.0, step=1000.0)
-aporte_mensal = st.sidebar.number_input("Aporte Mensal (R$)", value=1000.0, step=100.0)
+# Alterado value para 0.0
+valor_inicial = st.sidebar.number_input("Capital Inicial (R$)", value=0.0, step=1000.0)
+aporte_mensal = st.sidebar.number_input("Aporte Mensal (R$)", value=0.0, step=100.0)
 
 # Botão de escolha (Anual ou Mensal)
 unidade_tempo = st.sidebar.radio("Definir horizonte em:", ["Anos", "Meses"], horizontal=True)
 
 if unidade_tempo == "Anos":
-    anos = st.sidebar.slider("Duração", 1, 30, 10, format="%d Anos")
+    # O tempo começa no mínimo (1 ano)
+    anos = st.sidebar.slider("Duração", 1, 30, 1, format="%d Anos")
     meses = anos * 12
 else:
-    meses = st.sidebar.slider("Duração", 1, 12,12, format="%d Meses")
+    # O tempo começa no mínimo (1 mês)
+    meses = st.sidebar.slider("Duração", 1, 12, 1, format="%d Meses")
     anos = meses / 12
 
 st.sidebar.divider()
 
 st.sidebar.header("📊 Cenário Macroeconômico")
-inflacao_anual = st.sidebar.number_input("Inflação Projetada - IPCA (%)", value=4.5, step=0.5) / 100
+# Alterado value para 0.0
+inflacao_anual = st.sidebar.number_input("Inflação Projetada - IPCA (%)", value=0.0, step=0.5) / 100
 
 st.sidebar.divider()
 
 tipo_taxa = st.sidebar.radio("Estratégia de Alocação:", ["Renda Fixa", "Renda Variável (Monte Carlo)"])
 
 if tipo_taxa == "Renda Fixa":
-    taxa_anual = st.sidebar.number_input("Taxa Fixa Anual (%)", value=10.0, step=0.5) / 100
+    # Alterado value para 0.0
+    taxa_anual = st.sidebar.number_input("Taxa Fixa Anual (%)", value=0.0, step=0.5) / 100
 else:
     st.sidebar.write("Parâmetros do MBG:")
-    mu = st.sidebar.number_input("Retorno Esperado (Drift) %", value=11.0, step=0.5) / 100
-    sigma = st.sidebar.number_input("Volatilidade (Risco) %", value=18.0, step=1.0) / 100
-
+    # Alterados values para 0.0
+    mu = st.sidebar.number_input("Retorno Esperado (Drift) %", value=0.0, step=0.5) / 100
+    sigma = st.sidebar.number_input("Volatilidade (Risco) %", value=0.0, step=1.0) / 100
 # --- 4. PROCESSAMENTO DOS DADOS ---
 if tipo_taxa == "Renda Fixa":
     saldos, investido = calcular_fluxo_renda_fixa(valor_inicial, aporte_mensal, meses, taxa_anual)

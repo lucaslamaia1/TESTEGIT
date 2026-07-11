@@ -111,6 +111,15 @@ poder_de_compra_real = saldo_final_liquido / fator_desconto_inflacao
 st.title("📈 CalculaInvest")
 st.write("Projeção de acumulação de capital com análise de risco, inflação e tributação.")
 
+# Injeção de CSS para reduzir o tamanho da fonte e evitar que os números cortem
+st.markdown("""
+<style>
+[data-testid="stMetricValue"] {
+    font-size: 1.6rem !important; /* Pode diminuir para 1.4rem se ainda ficar grande */
+}
+</style>
+""", unsafe_allow_html=True)
+
 st.markdown("### 💰 Resumo Financeiro (Fim do Período)")
 col1, col2, col3, col4 = st.columns(4)
 

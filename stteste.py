@@ -93,7 +93,7 @@ if unidade_tempo == "Anos":
     anos = st.sidebar.slider("Duração", 1, 30, 10, format="%d Anos")
     meses = anos * 12
 else:
-    meses = st.sidebar.slider("Duração", 1, 360, 120, format="%d Meses")
+    meses = st.sidebar.slider("Duração", 1, 12,120, format="%d Meses")
     anos = meses / 12
 
 st.sidebar.divider()

@@ -5,6 +5,23 @@ import numpy as np
 # --- 1. CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="CalculaInvest", page_icon="📈", layout="wide")
 
+# --- INJEÇÃO DE CSS (FORMATAÇÃO EXECUTIVA E CORREÇÃO DE CORTE) ---
+st.markdown("""
+<style>
+/* Diminui o tamanho dos números e impede que sejam cortados */
+[data-testid="stMetricValue"] > div {
+    font-size: 1.3rem !important; 
+    overflow: visible !important;
+    white-space: normal !important;
+}
+
+/* Diminui o texto do título (ex: "Saldo Bruto Estimado") */
+[data-testid="stMetricLabel"] > div {
+    font-size: 0.85rem !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
 # --- 2. MOTORES DE CÁLCULO (ARQUITETURA MODULAR) ---
 def calcular_imposto_renda(lucro_bruto, anos):
     """Calcula o IR com base na tabela regressiva brasileira."""
@@ -112,20 +129,15 @@ st.title("📈 CalculaInvest")
 st.write("Projeção de acumulação de capital com análise de risco, inflação e tributação.")
 
 st.markdown("### 💰 Resumo Financeiro (Fim do Período)")
+col1, col2, col3, col4 = st.columns(4)
 
-# Primeira linha de métricas
-col1, col2 = st.columns(2)
-col1.metric("Total Investido (Custo)", f"R$ {total_investido:,.2f}")
-col2.metric("Saldo Bruto Estimado", f"R$ {saldo_final_bruto:,.2f}", f"+ R$ {lucro_bruto:,.2f} de lucro")
-
-st.write("") # Adiciona um pequeno espaço em branco
-
-# Segunda linha de métricas
-col3, col4 = st.columns(2)
-col3.metric("Imposto de Renda Pago", f"- R$ {imposto_retido:,.2f}", "Tabela Regressiva")
+# Métricas formatadas sem casas decimais para um visual mais limpo e executivo
+col1.metric("Total Investido (Custo)", f"R$ {total_investido:,.0f}")
+col2.metric("Saldo Bruto Estimado", f"R$ {saldo_final_bruto:,.0f}", f"+ R$ {lucro_bruto:,.0f} de lucro")
+col3.metric("Imposto de Renda Pago", f"- R$ {imposto_retido:,.0f}", "Tabela Regressiva")
 col4.metric(
     "Poder de Compra Real", 
-    f"R$ {poder_de_compra_real:,.2f}", 
+    f"R$ {poder_de_compra_real:,.0f}", 
     "Ajustado pela Inflação"
 )
 
@@ -153,4 +165,5 @@ with st.expander("📋 Ver Extrato de Auditoria de Dados"):
         label="📥 Descarregar Dados Analíticos (CSV)",
         data=df_export.to_csv().encode('utf-8'),
         file_name="projecao_financeira_v2.csv",
-        mime="text/csv")
+        mime="text/csv"
+    )

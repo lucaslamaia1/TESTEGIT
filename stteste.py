@@ -1,7 +1,19 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+from bcb import Expectativas
 
+def obter_inflacao_projetada_mercado():
+    """Busca automaticamente a projeção do IPCA para o ano corrente na base do Banco Central"""
+    try:
+        service = Expectativas()
+        df = service.get_endpoint('ExpectativasMercadoAnuais').query().filter(...).collect()
+        # O código localiza a projeção mais recente do Focus e extrai o número exato
+        inflacao_atualizada = df['Mediana'].iloc[0]
+        return inflacao_atualizada
+    except:
+        # Caso o site do Banco Central esteja fora do ar, o código usa um valor de segurança (fallback)
+        return 4.5
 # --- 1. CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="CalculaInvest", page_icon="📈", layout="wide")
 

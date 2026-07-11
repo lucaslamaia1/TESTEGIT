@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 
 # --- 1. CONFIGURAÇÃO DA PÁGINA ---
-st.set_page_config(page_title="Simulador Executivo V2", page_icon="📈", layout="wide")
+st.set_page_config(page_title="Calcula Invest", page_icon="📈", layout="wide")
 
 # --- 2. MOTORES DE CÁLCULO (ARQUITETURA MODULAR) ---
 def calcular_imposto_renda(lucro_bruto, anos):
@@ -108,7 +108,7 @@ fator_desconto_inflacao = (1 + inflacao_anual) ** anos
 poder_de_compra_real = saldo_final_liquido / fator_desconto_inflacao
 
 # --- 5. DASHBOARD EXECUTIVO (INTERFACE) ---
-st.title("📈 Dashboard Analítico de Investimentos")
+st.title("📈 Calcula Invest")
 st.write("Projeção de acumulação de capital com análise de risco, inflação e tributação.")
 
 st.markdown("### 💰 Resumo Financeiro (Fim do Período)")

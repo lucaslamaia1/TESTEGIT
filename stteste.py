@@ -83,11 +83,14 @@ aporte_mensal = st.sidebar.number_input("Quanto vai investir por mês? (R$)", va
 st.sidebar.divider()
 
 unidade_tempo = st.sidebar.radio("Como prefere definir o tempo?", ["Anos", "Meses"], horizontal=True)
+
 if unidade_tempo == "Anos":
-    anos = st.sidebar.slider("Por quanto tempo vai investir?", 1, 30, 5, format="%d Anos")
+    # Adicionada a key="slider_anos"
+    anos = st.sidebar.slider("Por quanto tempo vai investir?", 1, 30, 5, format="%d Anos", key="slider_anos")
     meses = anos * 12
 else:
-    meses = st.sidebar.slider("Por quanto tempo vai investir?", 1, 12, 6, format="%d Meses")
+    # Adicionada a key="slider_meses"
+    meses = st.sidebar.slider("Por quanto tempo vai investir?", 1, 12, 6, format="%d Meses", key="slider_meses")
     anos = meses / 12
 
 st.sidebar.divider()

@@ -187,4 +187,4 @@ with st.expander("📋 Ver evolução mês a mês (Tabela)"):
         "Saldo Projetado (R$)": saldos
     }).set_index("Mês")
     
-    st.dataframe(df_export, use_container_width=True)
+    st.dataframe(df_export, width="stretch")

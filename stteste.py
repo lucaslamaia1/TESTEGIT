@@ -5,19 +5,27 @@ import numpy as np
 # --- 1. CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="CalculaInvest", page_icon="📈", layout="wide")
 
-# --- INJEÇÃO DE CSS (FORMATAÇÃO EXECUTIVA E CORREÇÃO DE CORTE) ---
+# --- INJEÇÃO DE CSS (FONTE ELÁSTICA E RESPONSIVA) ---
 st.markdown("""
 <style>
-/* Diminui o tamanho dos números e impede que sejam cortados */
-[data-testid="stMetricValue"] > div {
-    font-size: 1.3rem !important; 
-    overflow: visible !important;
-    white-space: normal !important;
+/* 1. Torna o tamanho da fonte dinâmico (elástico) com base na largura da tela */
+[data-testid="stMetricValue"] {
+    font-size: clamp(14px, 1.8vw, 30px) !important;
 }
 
-/* Diminui o texto do título (ex: "Saldo Bruto Estimado") */
-[data-testid="stMetricLabel"] > div {
-    font-size: 0.85rem !important;
+/* 2. Destrói a regra nativa do Streamlit que coloca os "..." (reticências) */
+[data-testid="stMetricValue"] > div {
+    text-overflow: unset !important;
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    overflow: visible !important;
+}
+
+/* 3. Aplica a mesma regra anti-corte para as legendas verdes/vermelhas de baixo */
+[data-testid="stMetricDelta"] > div {
+    white-space: normal !important;
+    text-overflow: unset !important;
+    overflow: visible !important;
 }
 </style>
 """, unsafe_allow_html=True)

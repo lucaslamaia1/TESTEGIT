@@ -81,7 +81,7 @@ def simular_monte_carlo_mbg(v_inicial, aporte, meses, mu, sigma, num_simulacoes=
     return cenarios, np.array(investido)
 
 # --- 3. BARRA LATERAL (PARÂMETROS DE ENTRADA) ---
-# --- 3. BARRA LATERAL (PARÂMETROS DE ENTRADA) ---
+## --- 3. BARRA LATERAL (PARÂMETROS DE ENTRADA) ---
 st.sidebar.header("⚙️ Parâmetros do Projeto")
 valor_inicial = st.sidebar.number_input("Capital Inicial (R$)", value=10000.0, step=1000.0)
 aporte_mensal = st.sidebar.number_input("Aporte Mensal (R$)", value=1000.0, step=100.0)
@@ -89,15 +89,21 @@ aporte_mensal = st.sidebar.number_input("Aporte Mensal (R$)", value=1000.0, step
 # Botão de escolha (Anual ou Mensal)
 unidade_tempo = st.sidebar.radio("Definir horizonte em:", ["Anos", "Meses"], horizontal=True)
 
-# A interface muda dependendo do botão que o usuário clicou
 if unidade_tempo == "Anos":
     anos = st.sidebar.slider("Duração", 1, 30, 10, format="%d Anos")
     meses = anos * 12
 else:
     meses = st.sidebar.slider("Duração", 1, 360, 120, format="%d Meses")
-    anos = meses / 12 # A matemática do Imposto de Renda ainda precisa saber os anos
+    anos = meses / 12
 
 st.sidebar.divider()
+
+st.sidebar.header("📊 Cenário Macroeconômico")
+inflacao_anual = st.sidebar.number_input("Inflação Projetada - IPCA (%)", value=4.5, step=0.5) / 100
+
+st.sidebar.divider()
+
+tipo_taxa = st.sidebar.radio("Estratégia de Alocação:", ["Renda Fixa", "Renda Variável (Monte Carlo)"])
 
 if tipo_taxa == "Renda Fixa":
     taxa_anual = st.sidebar.number_input("Taxa Fixa Anual (%)", value=10.0, step=0.5) / 100

@@ -5,23 +5,18 @@ import numpy as np
 # --- 1. CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="CalculaInvest", page_icon="📈", layout="wide")
 
-# --- INJEÇÃO DE CSS (FONTE ELÁSTICA E RESPONSIVA) ---
+# --- INJEÇÃO DE CSS ---
 st.markdown("""
 <style>
-/* 1. Torna o tamanho da fonte dinâmico (elástico) com base na largura da tela */
 [data-testid="stMetricValue"] {
     font-size: clamp(14px, 1.8vw, 30px) !important;
 }
-
-/* 2. Destrói a regra nativa do Streamlit que coloca os "..." (reticências) */
 [data-testid="stMetricValue"] > div {
     text-overflow: unset !important;
     white-space: normal !important;
     word-wrap: break-word !important;
     overflow: visible !important;
 }
-
-/* 3. Aplica a mesma regra anti-corte para as legendas verdes/vermelhas de baixo */
 [data-testid="stMetricDelta"] > div {
     white-space: normal !important;
     text-overflow: unset !important;
@@ -30,9 +25,8 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- 2. MOTORES DE CÁLCULO (ARQUITETURA MODULAR) ---
+# --- 2. MOTORES DE CÁLCULO ---
 def calcular_imposto_renda(lucro_bruto, anos):
-    """Calcula o IR com base na tabela regressiva brasileira."""
     if lucro_bruto <= 0: return 0.0
     if anos <= 0.5: return lucro_bruto * 0.225
     elif anos <= 1.0: return lucro_bruto * 0.20
@@ -40,7 +34,6 @@ def calcular_imposto_renda(lucro_bruto, anos):
     else: return lucro_bruto * 0.15
 
 def calcular_fluxo_renda_fixa(v_inicial, aporte, meses, taxa_anual):
-    """Calcula o fluxo de caixa determinístico para Renda Fixa."""
     historico = [v_inicial]
     investido = [v_inicial]
     dt = 1 / 12
@@ -49,7 +42,7 @@ def calcular_fluxo_renda_fixa(v_inicial, aporte, meses, taxa_anual):
     saldo = v_inicial
     bolso = v_inicial
     
-    for _ in range(meses):
+    for _ in range(int(meses)):
         saldo += aporte
         bolso += aporte
         saldo += saldo * taxa_mensal
@@ -58,50 +51,45 @@ def calcular_fluxo_renda_fixa(v_inicial, aporte, meses, taxa_anual):
         
     return np.array(historico), np.array(investido)
 
+# O cache evita que o Streamlit recalcule números aleatórios a cada interação na tela
+@st.cache_data
 def simular_monte_carlo_mbg(v_inicial, aporte, meses, mu, sigma, num_simulacoes=500):
-    """Simula múltiplos cenários estocásticos usando NumPy para alta performance."""
     dt = 1 / 12
-    cenarios = np.zeros((meses + 1, num_simulacoes))
+    meses_int = int(meses)
+    cenarios = np.zeros((meses_int + 1, num_simulacoes))
     cenarios[0] = v_inicial
     
     investido = [v_inicial]
     bolso = v_inicial
     
-    for t in range(1, meses + 1):
+    for t in range(1, meses_int + 1):
         bolso += aporte
         investido.append(bolso)
         
-        # Gera o choque aleatório para as 500 simulações simultaneamente
         Z = np.random.standard_normal(num_simulacoes)
         fator_crescimento = np.exp((mu - (sigma**2) / 2) * dt + sigma * np.sqrt(dt) * Z)
-        
-        # Aplica o crescimento ao saldo anterior somado ao aporte
         cenarios[t] = (cenarios[t-1] + aporte) * fator_crescimento
         
     return cenarios, np.array(investido)
 
-# --- 3. BARRA LATERAL (PARÂMETROS DE ENTRADA) ---
+# --- 3. BARRA LATERAL ---
 st.sidebar.header("⚙️ Parâmetros do Projeto")
-# Alterado value para 0.0
+
 valor_inicial = st.sidebar.number_input("Capital Inicial (R$)", value=0.0, step=1000.0)
 aporte_mensal = st.sidebar.number_input("Aporte Mensal (R$)", value=0.0, step=100.0)
 
-# Botão de escolha (Anual ou Mensal)
 unidade_tempo = st.sidebar.radio("Definir horizonte em:", ["Anos", "Meses"], horizontal=True)
 
 if unidade_tempo == "Anos":
-    # O tempo começa no mínimo (1 ano)
     anos = st.sidebar.slider("Duração", 1, 30, 1, format="%d Anos")
     meses = anos * 12
 else:
-    # O tempo começa no mínimo (1 mês)
     meses = st.sidebar.slider("Duração", 1, 12, 1, format="%d Meses")
     anos = meses / 12
 
 st.sidebar.divider()
 
 st.sidebar.header("📊 Cenário Macroeconômico")
-# Alterado value para 0.0
 inflacao_anual = st.sidebar.number_input("Inflação Projetada - IPCA (%)", value=0.0, step=0.5) / 100
 
 st.sidebar.divider()
@@ -109,13 +97,12 @@ st.sidebar.divider()
 tipo_taxa = st.sidebar.radio("Estratégia de Alocação:", ["Renda Fixa", "Renda Variável (Monte Carlo)"])
 
 if tipo_taxa == "Renda Fixa":
-    # Alterado value para 0.0
     taxa_anual = st.sidebar.number_input("Taxa Fixa Anual (%)", value=0.0, step=0.5) / 100
 else:
     st.sidebar.write("Parâmetros do MBG:")
-    # Alterados values para 0.0
     mu = st.sidebar.number_input("Retorno Esperado (Drift) %", value=0.0, step=0.5) / 100
     sigma = st.sidebar.number_input("Volatilidade (Risco) %", value=0.0, step=1.0) / 100
+
 # --- 4. PROCESSAMENTO DOS DADOS ---
 if tipo_taxa == "Renda Fixa":
     saldos, investido = calcular_fluxo_renda_fixa(valor_inicial, aporte_mensal, meses, taxa_anual)
@@ -123,11 +110,9 @@ if tipo_taxa == "Renda Fixa":
     df_grafico = pd.DataFrame({"Patrimônio": saldos})
 else:
     cenarios, investido = simular_monte_carlo_mbg(valor_inicial, aporte_mensal, meses, mu, sigma)
-    # Extrai a mediana (Cenário Provável) para métricas principais
     saldos = np.median(cenarios, axis=1) 
     saldo_final_bruto = saldos[-1]
     
-    # Prepara os dados para a "nuvem" de cenários
     df_grafico = pd.DataFrame({
         "Cenário Otimista (95%)": np.percentile(cenarios, 95, axis=1),
         "Cenário Provável (Mediana)": saldos,
@@ -137,24 +122,28 @@ else:
 total_investido = investido[-1]
 lucro_bruto = saldo_final_bruto - total_investido
 
-# Descontos Fiscais e Inflação
 imposto_retido = calcular_imposto_renda(lucro_bruto, anos)
 saldo_final_liquido = saldo_final_bruto - imposto_retido
 
-# Ajuste a Valor Presente (Desconto da inflação para descobrir o poder de compra real)
 fator_desconto_inflacao = (1 + inflacao_anual) ** anos
 poder_de_compra_real = saldo_final_liquido / fator_desconto_inflacao
 
-# --- 5. DASHBOARD EXECUTIVO (INTERFACE) ---
+# --- 5. DASHBOARD EXECUTIVO ---
 st.title("📈 CalculaInvest")
 st.write("Projeção de acumulação de capital com análise de risco, inflação e tributação.")
 
 st.markdown("### 💰 Resumo Financeiro (Fim do Período)")
 col1, col2, col3, col4 = st.columns(4)
 
-# Métricas formatadas sem casas decimais para um visual mais limpo e executivo
 col1.metric("Total Investido (Custo)", f"R$ {total_investido:,.0f}")
-col2.metric("Saldo Bruto Estimado", f"R$ {saldo_final_bruto:,.0f}", f"+ R$ {lucro_bruto:,.0f} de lucro")
+
+# Formatação condicional para evitar "+ R$ -1000 de lucro"
+if lucro_bruto >= 0:
+    delta_text = f"+ R$ {lucro_bruto:,.0f} de lucro"
+else:
+    delta_text = f"- R$ {abs(lucro_bruto):,.0f} de prejuízo"
+
+col2.metric("Saldo Bruto Estimado", f"R$ {saldo_final_bruto:,.0f}", delta_text)
 col3.metric("Imposto de Renda Pago", f"- R$ {imposto_retido:,.0f}", "Tabela Regressiva")
 col4.metric(
     "Poder de Compra Real", 
@@ -175,7 +164,7 @@ else:
 # --- 7. EXTRATO DE DADOS LIMPOS ---
 with st.expander("📋 Ver Extrato de Auditoria de Dados"):
     df_export = pd.DataFrame({
-        "Mês": range(meses + 1),
+        "Mês": range(int(meses) + 1),
         "Dinheiro Investido (R$)": investido,
         "Saldo Projetado (R$)": saldos
     }).set_index("Mês")

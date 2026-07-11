@@ -111,20 +111,17 @@ poder_de_compra_real = saldo_final_liquido / fator_desconto_inflacao
 st.title("📈 CalculaInvest")
 st.write("Projeção de acumulação de capital com análise de risco, inflação e tributação.")
 
-# Injeção de CSS para reduzir o tamanho da fonte e evitar que os números cortem
-st.markdown("""
-<style>
-[data-testid="stMetricValue"] {
-    font-size: 1.6rem !important; /* Pode diminuir para 1.4rem se ainda ficar grande */
-}
-</style>
-""", unsafe_allow_html=True)
-
 st.markdown("### 💰 Resumo Financeiro (Fim do Período)")
-col1, col2, col3, col4 = st.columns(4)
 
+# Primeira linha de métricas
+col1, col2 = st.columns(2)
 col1.metric("Total Investido (Custo)", f"R$ {total_investido:,.2f}")
 col2.metric("Saldo Bruto Estimado", f"R$ {saldo_final_bruto:,.2f}", f"+ R$ {lucro_bruto:,.2f} de lucro")
+
+st.write("") # Adiciona um pequeno espaço em branco
+
+# Segunda linha de métricas
+col3, col4 = st.columns(2)
 col3.metric("Imposto de Renda Pago", f"- R$ {imposto_retido:,.2f}", "Tabela Regressiva")
 col4.metric(
     "Poder de Compra Real", 

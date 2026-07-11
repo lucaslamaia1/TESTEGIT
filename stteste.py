@@ -147,4 +147,4 @@ with st.expander("📋 Ver Extrato de Auditoria de Dados"):
         label="📥 Descarregar Dados Analíticos (CSV)",
         data=df_export.to_csv().encode('utf-8'),
         file_name="projecao_financeira_v2.csv",
-        mime="text/csv"
+        mime="text/csv")
